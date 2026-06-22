@@ -59,6 +59,30 @@ const handleSelect = async () => {
     console.error('Failed to update featured project:', err)
   }
 }
+
+const handleRemoveFeatured = async () => {
+  if (!featuredProject.value || !featuredProject.value.id) return
+  try {
+    const docRef = doc(db, 'projects', featuredProject.value.id)
+    await updateDoc(docRef, {
+      featured: false,
+      featuredOrder: 9999
+    })
+    
+    await logAction({
+      action: 'update',
+      collection: 'projects',
+      docId: featuredProject.value.id,
+      performedBy: auth.currentUser?.uid || 'unknown',
+      performedByEmail: auth.currentUser?.email || 'unknown',
+      detail: `Removed project ${featuredProject.value.name} from featured`
+    })
+    
+    alert('Removed featured project successfully!')
+  } catch (err) {
+    console.error('Failed to remove featured project:', err)
+  }
+}
 </script>
 
 <template>
@@ -97,16 +121,66 @@ const handleSelect = async () => {
       </div>
 
       <!-- Current Featured Card -->
-      <div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Currently Featured Project</h3>
-        <div v-if="featuredProject" class="admin-card flex flex-col md:flex-row gap-6 items-stretch md:items-center">
-          <img :src="featuredProject.cover" class="h-28 w-44 rounded-xl object-cover border" style="border-color: var(--admin-border);" />
-          <div class="flex-grow text-left">
-            <span class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--admin-accent);">BY {{ featuredProject.builder }}</span>
-            <h4 class="text-xl font-bold mt-1" style="color: var(--admin-text-primary);">{{ featuredProject.name }}</h4>
-            <p class="text-sm mt-2" style="color: var(--admin-text-secondary);">{{ featuredProject.tagline }}</p>
+      <div class="flex flex-col gap-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">Currently Featured Project</h3>
+        
+        <div v-if="featuredProject" class="flex flex-col gap-4 items-start">
+          <!-- Public Showcase style Card in Admin palette -->
+          <div 
+            class="flex flex-col items-stretch text-left rounded-3xl border overflow-hidden max-w-sm w-full shadow-sm"
+            style="border-color: var(--admin-border); background-color: var(--admin-card-bg);"
+          >
+            <!-- Cover Container -->
+            <div class="relative aspect-[4/3] w-full overflow-hidden border-b" style="border-color: var(--admin-border);">
+              <img
+                :src="featuredProject.cover"
+                :alt="featuredProject.name"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            
+            <!-- Content Info -->
+            <div class="flex flex-1 flex-col p-6">
+              <span class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--admin-accent);">
+                BY {{ featuredProject.builder }}
+              </span>
+              <h3 class="mt-2 font-display text-2xl font-bold" style="color: var(--admin-text-primary);">
+                {{ featuredProject.name }}
+              </h3>
+              <p class="mt-2 flex-1 text-sm line-clamp-2" style="color: var(--admin-text-secondary);">
+                {{ featuredProject.tagline }}
+              </p>
+              
+              <!-- Footer -->
+              <div class="mt-6 flex items-center justify-between border-t pt-4" style="border-color: var(--admin-border);">
+                <div class="flex gap-1.5">
+                  <span
+                    v-for="tag in featuredProject.tags?.slice(0, 2) || []"
+                    :key="tag"
+                    class="rounded-full border px-2.5 py-0.5 text-[10px] font-medium"
+                    style="border-color: var(--admin-border); background-color: var(--admin-bg); color: var(--admin-text-secondary);"
+                  >
+                    {{ tag }}
+                  </span>
+                </div>
+                
+                <span class="text-xs font-semibold" style="color: var(--admin-accent);">
+                  Featured ★
+                </span>
+              </div>
+            </div>
           </div>
+
+          <!-- Remove featured button -->
+          <button
+            type="button"
+            @click="handleRemoveFeatured"
+            class="px-4 py-2 border rounded-lg text-sm font-semibold border-red-500/20 text-red-500 hover:bg-red-500/10 active:scale-[0.98] transition-all cursor-pointer"
+          >
+            Remove featured
+          </button>
         </div>
+
         <div v-else class="p-6 rounded-xl border border-dashed text-center text-sm" style="border-color: var(--admin-border); color: var(--admin-text-muted);">
           No featured project selected.
         </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { signOut, onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from '@/firebase'
 import { useAdminUser } from './useAdminUser'
@@ -21,8 +21,16 @@ import {
 } from 'lucide-vue-next'
 
 const router = useRouter()
+const route = useRoute()
 const { role } = useAdminUser()
 const currentUser = ref<User | null>(auth.currentUser)
+const showErrorBanner = ref(false)
+
+watch(() => route.query.error, (newVal) => {
+  if (newVal === 'unauthorised') {
+    showErrorBanner.value = true
+  }
+}, { immediate: true })
 
 onAuthStateChanged(auth, (user) => {
   currentUser.value = user
@@ -155,7 +163,11 @@ const handleSignOut = async () => {
     </aside>
 
     <!-- Main Content Area -->
-    <main class="admin-main flex-grow ml-[240px] min-h-screen">
+    <main class="admin-main flex-grow ml-[240px] min-h-screen flex flex-col">
+      <div v-if="showErrorBanner" class="mx-8 mt-8 p-4 rounded-xl border flex items-center justify-between text-sm bg-red-50 text-red-700 border-red-200">
+        <span>You do not have permission to access that page.</span>
+        <button @click="showErrorBanner = false" class="text-red-700 hover:opacity-75 font-bold text-lg cursor-pointer px-2">×</button>
+      </div>
       <RouterView />
     </main>
   </div>

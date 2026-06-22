@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { auth } from '@/firebase'
+import { auth, db } from '@/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
 
 // Helper function to resolve the current authenticated user session
 function getCurrentUser(): Promise<any> {
@@ -14,6 +15,20 @@ function getCurrentUser(): Promise<any> {
       reject
     )
   })
+}
+
+async function getUserRole(uid: string): Promise<string | null> {
+  try {
+    const docRef = doc(db, 'admins', uid)
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      return docSnap.data().role || 'admin'
+    }
+    return null
+  } catch (e) {
+    console.error('Failed to fetch role in route guard:', e)
+    return null
+  }
 }
 
 export const router = createRouter({
@@ -86,9 +101,18 @@ router.beforeEach(async (to, _from, next) => {
     const user = await getCurrentUser()
     if (!user) {
       next('/xxy_admin/login')
-    } else {
-      next()
+      return
     }
+
+    if (to.path === '/xxy_admin/audit' || to.path === '/xxy_admin/audit/') {
+      const role = await getUserRole(user.uid)
+      if (role !== 'superAdmin') {
+        next({ path: '/xxy_admin', query: { error: 'unauthorised' } })
+        return
+      }
+    }
+
+    next()
   } else {
     next()
   }

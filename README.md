@@ -100,3 +100,15 @@ The site will be available at:
   - `AdminAbout.vue`, `AdminSocials.vue`, `AdminHero.vue` (settings overrides on `/settings/global`)
   - `AdminAuditLog.vue` (read-only logs tracking operator mutations)
 - **Soft-Delete System**: Coded transaction logic in `src/composables/firebase/useSoftDelete.ts` copy-archiving deleted documents to the `/bin` collection with a 30-day expiration stamp before purging records.
+
+### Phase 7 — Role-Based Route Guards, Client-Side Filters, & Star Toggles
+- **Navigation Guarding**: Added a dynamic role verification check in the router navigation guard that queries Firestore `/admins/{uid}` role details. Non-superAdmin users trying to access the audit log are redirected to `/xxy_admin?error=unauthorised`.
+- **Dismissible Error Banner**: Integrated a global query listener in `AdminApp.vue` that displays a red warning banner if an unauthorized route attempt is registered.
+- **Audit Log Filtering & Exporter**:
+  - Configured `AdminAuditLog.vue` to fetch the last 200 records.
+  - Implemented multi-select filters (Collection dropdown, Action dropdown, and From/To Date range bounds) executing dynamic client-side array reductions.
+  - Rendered colored action badge indicators, localized timestamps, and title hover tooltips for truncated log strings.
+  - Created a pure JS CSV generator compiling filtered logs into structured comma-separated downloads.
+- **Featured Projects Star Toggles**:
+  - Implemented interactive star icon buttons (`Star` / `StarOff`) inside the projects table on `AdminProjects.vue`, performing transactional updates to clear/reassign featured flags.
+  - Redesigned `AdminFeatured.vue`'s preview card to mirror the public site's layout while rendering in the dashboard's light/dark palette, and added a button to clear the active featured project.

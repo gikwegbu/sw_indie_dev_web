@@ -18,7 +18,7 @@ import {
   DialogContent,
   DialogClose
 } from 'radix-vue'
-import { X, Plus, Minus } from 'lucide-vue-next'
+import { X, Plus, Minus, Star, StarOff } from 'lucide-vue-next'
 
 const { docs: projects, loading, error } = useCollection<Project>('projects')
 const { docs: members } = useCollection<Member>('members')
@@ -194,6 +194,56 @@ const handleSubmit = async () => {
   }
 }
 
+const toggleFeatured = async (project: any) => {
+  if (!project.id) return
+  try {
+    const isCurrentlyFeatured = !!project.featured
+    
+    if (isCurrentlyFeatured) {
+      const docRef = doc(db, 'projects', project.id)
+      await updateDoc(docRef, {
+        featured: false,
+        featuredOrder: 9999
+      })
+      await logAction({
+        action: 'update',
+        collection: 'projects',
+        docId: project.id,
+        performedBy: auth.currentUser?.uid || 'unknown',
+        performedByEmail: auth.currentUser?.email || 'unknown',
+        detail: `Removed project ${project.name} from featured`
+      })
+    } else {
+      const otherFeatured = projects.value.filter(p => p.featured && p.id !== project.id)
+      for (const p of otherFeatured) {
+        if (p.id) {
+          await updateDoc(doc(db, 'projects', p.id), {
+            featured: false,
+            featuredOrder: 9999
+          })
+        }
+      }
+      
+      const docRef = doc(db, 'projects', project.id)
+      await updateDoc(docRef, {
+        featured: true,
+        featuredOrder: 1
+      })
+      
+      await logAction({
+        action: 'update',
+        collection: 'projects',
+        docId: project.id,
+        performedBy: auth.currentUser?.uid || 'unknown',
+        performedByEmail: auth.currentUser?.email || 'unknown',
+        detail: 'Marked as featured project'
+      })
+    }
+  } catch (err) {
+    console.error('Failed to toggle featured status:', err)
+  }
+}
+
 const formatDate = (val: any) => {
   if (!val) return '—'
   if (val.seconds) {
@@ -252,13 +302,16 @@ const formatDate = (val: any) => {
         </div>
       </template>
       <template #cell(featured)="{ row }">
-        <span
-          v-if="row.featured"
-          class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-650 dark:text-amber-400 border border-amber-500/20"
+        <button
+          type="button"
+          @click="toggleFeatured(row)"
+          class="p-1 rounded hover:bg-gray-150 dark:hover:bg-stone-850 cursor-pointer flex items-center justify-center transition-colors mx-auto"
+          style="color: var(--admin-accent);"
+          :title="row.featured ? 'Remove featured status' : 'Mark as featured'"
         >
-          ★ Featured
-        </span>
-        <span v-else class="text-xs text-gray-400">—</span>
+          <Star v-if="row.featured" class="h-4 w-4 fill-amber-400 text-amber-500" />
+          <StarOff v-else class="h-4 w-4 text-gray-400" />
+        </button>
       </template>
       <template #cell(createdAt)="{ row }">
         <span>{{ formatDate(row.createdAt) }}</span>
