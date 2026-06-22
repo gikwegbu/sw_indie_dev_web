@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if the user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Public collections: Read is allowed for everyone, write only for authenticated users
+    match /members/{memberId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /upcomingEvents/{eventId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /pastEvents/{eventId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+
+      match /talks/{talkId} {
+        allow read: if true;
+        allow write: if isAuthenticated();
+      }
+    }
+
+    match /outreach/{outreachId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /settings/{docId} {
+      allow read: if docId == 'global';
+      allow write: if isAuthenticated();
+    }
+
+    // Audit logs: Accessible only to authenticated users (no public reading)
+    match /adminAuditLog/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Soft-deleted bin: Accessible only to authenticated users
+    match /bin/{binId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

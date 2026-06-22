@@ -39,6 +39,8 @@ const navLinks = [
   { label: 'About', href: '#about' },
   { label: 'Showcase', href: '#showcase' },
   { label: 'Members', href: '#members' },
+  { label: 'Events', href: '#events' },
+  { label: 'Outreach', href: '#outreach' },
   { label: 'Community', href: '#community' },
   { label: 'Join', href: '#join' },
 ]

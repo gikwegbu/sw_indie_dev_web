@@ -18,7 +18,9 @@ export const projects: Project[] = [
     links: [
       { label: "App Store", url: "#", icon: "apple" },
       { label: "Website", url: "#", icon: "web" }
-    ]
+    ],
+    featured: true,
+    featuredOrder: 1
   },
   {
     name: "Vivid Metrics",
@@ -32,7 +34,8 @@ export const projects: Project[] = [
     links: [
       { label: "Visit App", url: "#", icon: "web" },
       { label: "Download", url: "#", icon: "download" }
-    ]
+    ],
+    featured: false
   },
   {
     name: "Halcyon Notes",
@@ -46,7 +49,8 @@ export const projects: Project[] = [
     links: [
       { label: "App Store", url: "#", icon: "apple" },
       { label: "Play Store", url: "#", icon: "play" }
-    ]
+    ],
+    featured: false
   },
   {
     name: "Streakly",
@@ -60,7 +64,8 @@ export const projects: Project[] = [
     links: [
       { label: "App Store", url: "#", icon: "apple" },
       { label: "Play Store", url: "#", icon: "play" }
-    ]
+    ],
+    featured: false
   },
   {
     name: "Calm Compass",
@@ -74,7 +79,8 @@ export const projects: Project[] = [
     links: [
       { label: "App Store", url: "#", icon: "apple" },
       { label: "Website", url: "#", icon: "web" }
-    ]
+    ],
+    featured: false
   },
   {
     name: "Ledger Light",
@@ -88,6 +94,7 @@ export const projects: Project[] = [
     links: [
       { label: "App Store", url: "#", icon: "apple" },
       { label: "Website", url: "#", icon: "web" }
-    ]
+    ],
+    featured: false
   }
 ];

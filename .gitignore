@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment local files
+.env
+.env.local
+.env.*.local
+
+# Local npm cache
+.npm-cache/
+
+

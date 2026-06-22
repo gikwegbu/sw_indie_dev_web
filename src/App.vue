@@ -6,8 +6,21 @@ import AboutSection from '@/components/AboutSection.vue'
 import PillarsSection from '@/components/PillarsSection.vue'
 import ShowcaseSection from '@/components/ShowcaseSection.vue'
 import MembersSection from '@/components/MembersSection.vue'
+import UpcomingEvents from '@/components/UpcomingEvents.vue'
+import PastEvents from '@/components/PastEvents.vue'
+import CommunityOutreach from '@/components/CommunityOutreach.vue'
 import JoinSection from '@/components/JoinSection.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
+
+import SplashScreen from '@/components/SplashScreen.vue'
+import { splashDone, markSplashDone } from '@/composables/useSplash'
+
+const socials = {
+  instagram: '#',
+  facebook: '#',
+  twitter: '#',
+  linkedin: '#'
+}
 </script>
 
 <template>
@@ -27,20 +40,33 @@ import SiteFooter from '@/components/SiteFooter.vue'
       }"
     />
 
-    <!-- Navigation Header -->
-    <NavBar />
+    <!-- Splash Screen -->
+    <SplashScreen v-if="!splashDone" @done="markSplashDone" />
 
-    <!-- Page Content (Sections in exact order) -->
-    <main class="flex-grow">
-      <HeroSection />
-      <AboutSection />
-      <PillarsSection />
-      <ShowcaseSection />
-      <MembersSection />
-      <JoinSection />
-    </main>
+    <!-- Main Content Transition -->
+    <Transition name="fade-in">
+      <div v-if="splashDone" class="flex flex-col flex-grow">
+        <!-- Navigation Header -->
+        <NavBar />
 
-    <!-- Footer -->
-    <SiteFooter />
+        <!-- Page Content (Sections in exact order) -->
+        <main class="flex-grow">
+          <HeroSection />
+          <AboutSection />
+          <PillarsSection />
+          <ShowcaseSection />
+          <MembersSection />
+          <UpcomingEvents />
+          <PastEvents />
+          <CommunityOutreach />
+          <JoinSection />
+        </main>
+
+        <!-- Footer -->
+        <SiteFooter :socials="socials" />
+      </div>
+    </Transition>
   </div>
 </template>
+
+
