@@ -11,6 +11,7 @@ export interface MemberApp {
 }
 
 export interface Member {
+  id?: string;
   name: string;
   role: "Organizing Team" | "Member";
   title: string;
@@ -32,6 +33,7 @@ export interface ProjectLink {
 }
 
 export interface Project {
+  id?: string;
   name: string;
   tagline: string;
   builder: string;

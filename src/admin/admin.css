@@ -1,23 +1,54 @@
-/* CSS Variables for Admin Theme (Light Mode only) */
-.admin-theme {
+/* CSS Variables for Admin Theme */
+
+/* Light Mode Variables */
+.admin-theme-light {
+  --admin-bg: #ffffff;
   --admin-sidebar-bg: #f8f8f7;
   --admin-accent: #6248d4;
   --admin-accent-hover: #5037be;
   --admin-accent-light: #f0edfd;
-  --admin-bg: #ffffff;
   --admin-border: #e5e7eb;
   --admin-text-primary: #111827;
   --admin-text-secondary: #4b5563;
   --admin-text-muted: #9ca3af;
-  
-  background-color: var(--admin-bg) !important;
-  color: var(--admin-text-primary) !important;
+  --admin-card-bg: #ffffff;
+  --admin-table-stripe: #f9fafb;
 }
 
-/* Admin Sidebar Layout */
+/* Dark Mode Variables */
+.admin-theme-dark {
+  --admin-bg: #0c0a09; /* stone-950 */
+  --admin-sidebar-bg: #1c1917; /* stone-900 */
+  --admin-accent: #8b5cf6; /* violet-500 */
+  --admin-accent-hover: #7c3aed; /* violet-600 */
+  --admin-accent-light: rgba(139, 92, 246, 0.12);
+  --admin-border: #292524; /* stone-800 */
+  --admin-text-primary: #f5f5f4; /* stone-100 */
+  --admin-text-secondary: #d6d3d1; /* stone-300 */
+  --admin-text-muted: #78716c; /* stone-500 */
+  --admin-card-bg: #1c1917; /* stone-900 */
+  --admin-table-stripe: #171412;
+}
+
+/* Base resets restricted to admin theme container */
+.admin-theme-light, .admin-theme-dark {
+  background-color: var(--admin-bg) !important;
+  color: var(--admin-text-primary) !important;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Admin Sidebar */
 .admin-sidebar {
   background-color: var(--admin-sidebar-bg);
   border-right: 1px solid var(--admin-border);
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+
+/* Admin Main Scrollable area */
+.admin-main {
+  background-color: var(--admin-bg);
+  color: var(--admin-text-primary);
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* Admin Nav Links */
@@ -52,4 +83,84 @@
   letter-spacing: 0.05em;
   color: var(--admin-text-muted);
   padding: 16px 16px 6px 16px;
+}
+
+/* Form Controls & Inputs */
+.admin-input {
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text-primary);
+  outline: none;
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 8px 14px;
+  width: 100%;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.admin-input:focus {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 3px var(--admin-accent-light);
+}
+
+.admin-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-text-secondary);
+  margin-bottom: 6px;
+}
+
+/* Buttons */
+.admin-btn-primary {
+  background-color: var(--admin-accent);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background-color 150ms ease, transform 100ms ease;
+  cursor: pointer;
+}
+.admin-btn-primary:hover {
+  background-color: var(--admin-accent-hover);
+}
+.admin-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.admin-btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+.admin-btn-secondary:hover {
+  background-color: var(--admin-sidebar-bg);
+  color: var(--admin-text-primary);
+}
+
+/* Card layout */
+.admin-card {
+  background-color: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 150ms ease;
+}
+
+/* Custom Scrollbar override for Admin views */
+.admin-main::-webkit-scrollbar {
+  width: 8px;
+}
+.admin-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-main::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 4px;
 }

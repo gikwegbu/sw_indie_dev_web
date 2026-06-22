@@ -80,3 +80,23 @@ The site will be available at:
 - **Light-Mode Admin Shell**: Created `AdminApp.vue` styling variables in `src/admin/admin.css` containing dedicated white backgrounds, grey sidebar panels, and purple accent brand outlines.
 - **Administrator Login**: Developed `AdminLogin.vue` with toggleable Eye/EyeOff password indicators.
 - **Dashboard Views**: Added stub views for all administrative content lists, settings forms, and log lists, alongside a real-time `useAdminUser` role verification check.
+
+### Phase 6 — Complete CMS CRUD Views, Dark Mode, & Soft-Deletes
+- **Theme Modes**: Implemented unified light/dark variable sheets inside `src/admin/admin.css` isolating the admin dashboard. Added a reactive mode-toggle button in `AdminApp.vue` saving theme preferences to `localStorage`.
+- **Shared CMS Components**: Built robust reusable components in `src/admin/components/`:
+  - `ShimmerTable.vue` (skeleton loading placeholders)
+  - `EmptyState.vue` (plus icon fallback prompts)
+  - `ConfirmDeleteModal.vue` (Radix delete dialogs)
+  - `RichTextEditor.vue` (TipTap rich text editor toolbar, Markdown support, and live Tailwind prose preview)
+  - `DataTable.vue` (action columns eye/pencil/trash binding, custom slots)
+  - `AddButton.vue` (styled accent actions)
+- **CMS Views**: Replaced stubs in `src/admin/views/` with complete CRUD implementations:
+  - `AdminMembers.vue` (member records, bio copy, repeatable app lists)
+  - `AdminProjects.vue` (portfolio project submissions, member builder picker, exclusive featured states)
+  - `AdminFeatured.vue` (dropdown highlighted project selectors)
+  - `AdminUpcomingEvents.vue` (ISO 8601 calendar pickers, address mapping)
+  - `AdminPastEvents.vue` (talks subcollections replication, speaker subforms, gallery arrays)
+  - `AdminOutreach.vue` (activity records, gallery slideshow URLs)
+  - `AdminAbout.vue`, `AdminSocials.vue`, `AdminHero.vue` (settings overrides on `/settings/global`)
+  - `AdminAuditLog.vue` (read-only logs tracking operator mutations)
+- **Soft-Delete System**: Coded transaction logic in `src/composables/firebase/useSoftDelete.ts` copy-archiving deleted documents to the `/bin` collection with a 30-day expiration stamp before purging records.

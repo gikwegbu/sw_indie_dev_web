@@ -15,7 +15,9 @@ import {
   Share2,
   Image as ImageIcon,
   Activity,
-  LogOut
+  LogOut,
+  Sun,
+  Moon
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -25,6 +27,15 @@ const currentUser = ref<User | null>(auth.currentUser)
 onAuthStateChanged(auth, (user) => {
   currentUser.value = user
 })
+
+const theme = ref<'light' | 'dark'>(
+  (localStorage.getItem('admin-theme') as 'light' | 'dark') || 'dark'
+)
+
+const toggleTheme = () => {
+  theme.value = theme.value === 'light' ? 'dark' : 'light'
+  localStorage.setItem('admin-theme', theme.value)
+}
 
 const handleSignOut = async () => {
   try {
@@ -37,16 +48,16 @@ const handleSignOut = async () => {
 </script>
 
 <template>
-  <div class="admin-theme admin-layout min-h-screen flex text-[#111827] bg-white font-sans">
+  <div :class="[theme === 'light' ? 'admin-theme-light' : 'admin-theme-dark']" class="admin-layout min-h-screen flex font-sans">
     <!-- Sidebar -->
-    <aside class="admin-sidebar w-[240px] flex flex-col fixed inset-y-0 left-0 bg-[#f8f8f7] border-r border-gray-200">
+    <aside class="admin-sidebar w-[240px] flex flex-col fixed inset-y-0 left-0">
       
       <!-- Top Branding -->
-      <div class="p-6 flex items-center justify-between border-b border-gray-200/60 bg-white">
-        <span class="font-display text-sm font-bold tracking-tighter text-[#6248d4]">
+      <div class="p-6 flex items-center justify-between border-b" style="background-color: var(--admin-card-bg); border-color: var(--admin-border);">
+        <span class="font-display text-sm font-bold tracking-tighter text-[#6248d4]" style="color: var(--admin-accent);">
           SW·INDIE DEVS
         </span>
-        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider bg-gray-100 text-gray-500 uppercase border border-gray-200/50">
+        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase border" style="background-color: var(--admin-bg); color: var(--admin-text-secondary); border-color: var(--admin-border);">
           Admin
         </span>
       </div>
@@ -111,17 +122,30 @@ const handleSignOut = async () => {
         </template>
       </nav>
 
-      <!-- Bottom Profile / Sign Out -->
-      <div class="p-4 border-t border-gray-200 bg-white flex flex-col gap-3">
-        <div class="flex flex-col text-left">
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Signed in as</span>
-          <span class="text-xs font-semibold text-gray-700 truncate" :title="currentUser?.email || ''">
-            {{ currentUser?.email || 'Admin User' }}
-          </span>
+      <!-- Bottom Profile / Sign Out / Theme Toggle -->
+      <div class="p-4 border-t flex flex-col gap-3" style="background-color: var(--admin-card-bg); border-color: var(--admin-border);">
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col text-left truncate max-w-[140px]">
+            <span class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--admin-text-muted);">Signed in as</span>
+            <span class="text-xs font-semibold truncate" style="color: var(--admin-text-primary);" :title="currentUser?.email || ''">
+              {{ currentUser?.email || 'Admin User' }}
+            </span>
+          </div>
+          <!-- Theme Toggle Button -->
+          <button
+            @click="toggleTheme"
+            class="p-2 rounded-lg border hover:opacity-85 transition-all cursor-pointer"
+            style="background-color: var(--admin-bg); border-color: var(--admin-border); color: var(--admin-text-secondary);"
+            :title="theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'"
+          >
+            <Sun v-if="theme === 'dark'" class="h-4 w-4" />
+            <Moon v-else class="h-4 w-4" />
+          </button>
         </div>
         <button
           @click="handleSignOut"
-          class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-red-200 hover:bg-red-50 hover:text-red-600 text-gray-600 text-xs font-semibold transition-all cursor-pointer"
+          class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border hover:opacity-85 text-xs font-semibold transition-all cursor-pointer"
+          style="background-color: var(--admin-bg); border-color: var(--admin-border); color: var(--admin-text-secondary);"
         >
           <LogOut class="h-3.5 w-3.5" />
           <span>Sign out</span>
@@ -131,7 +155,7 @@ const handleSignOut = async () => {
     </aside>
 
     <!-- Main Content Area -->
-    <main class="admin-main flex-grow ml-[240px] min-h-screen bg-white">
+    <main class="admin-main flex-grow ml-[240px] min-h-screen">
       <RouterView />
     </main>
   </div>
