@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onUnmounted } from 'vue'
 import {
   DialogRoot,
   DialogPortal,
@@ -8,7 +8,9 @@ import {
   DialogClose,
 } from 'radix-vue'
 import { X } from 'lucide-vue-next'
-import type { PastEvent } from '@/types'
+import { collection, onSnapshot } from 'firebase/firestore'
+import { db } from '@/firebase'
+import type { PastEvent, EventTalk } from '@/types'
 
 const props = defineProps<{
   event: PastEvent | null
@@ -28,10 +30,40 @@ const isOpen = computed({
 })
 
 const activeTalkId = ref<string | null>(null)
+const talks = ref<EventTalk[]>([])
+const talksLoading = ref(false)
+let unsubscribeTalks: (() => void) | null = null
 
 // Reset video when dialog closes or changes
-watch(() => props.event, () => {
+watch(() => props.event, (newVal) => {
   activeTalkId.value = null
+  if (unsubscribeTalks) {
+    unsubscribeTalks()
+    unsubscribeTalks = null
+  }
+  talks.value = []
+  
+  if (newVal?.id) {
+    talksLoading.value = true
+    const subColRef = collection(db, 'pastEvents', newVal.id, 'talks')
+    unsubscribeTalks = onSnapshot(subColRef, (snapshot) => {
+      const results: EventTalk[] = []
+      snapshot.forEach((doc) => {
+        results.push({ id: doc.id, ...doc.data() } as unknown as EventTalk)
+      })
+      talks.value = results
+      talksLoading.value = false
+    }, (err) => {
+      console.error('Failed to fetch talks:', err)
+      talksLoading.value = false
+    })
+  }
+}, { immediate: true })
+
+onUnmounted(() => {
+  if (unsubscribeTalks) {
+    unsubscribeTalks()
+  }
 })
 
 function getYoutubeId(url: string): string {
@@ -113,15 +145,32 @@ function formatDate(dateString: string) {
               </span>
             </div>
 
+            <!-- Talks Loading State -->
+            <div v-if="talksLoading" class="border-t border-border/40 pt-6">
+              <h4 class="font-display text-lg font-bold text-foreground mb-4">
+                Loading talks...
+              </h4>
+              <div class="grid gap-4 sm:grid-cols-2 animate-pulse">
+                <div v-for="i in 2" :key="i" class="h-64 rounded-2xl border border-border bg-surface/60 overflow-hidden">
+                  <div class="aspect-square w-full bg-border/20"></div>
+                  <div class="p-4 space-y-2">
+                    <div class="h-4 w-1/3 bg-border/20 rounded"></div>
+                    <div class="h-3 w-1/2 bg-border/20 rounded"></div>
+                    <div class="h-4 w-3/4 bg-border/20 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Talks Section -->
-            <div v-if="event.talks && event.talks.length > 0" class="border-t border-border/40 pt-6">
+            <div v-else-if="talks && talks.length > 0" class="border-t border-border/40 pt-6">
               <h4 class="font-display text-lg font-bold text-foreground mb-4">
                 Talks from this event
               </h4>
               
               <div class="grid gap-4 sm:grid-cols-2">
                 <div
-                  v-for="talk in event.talks"
+                  v-for="talk in talks"
                   :key="talk.id"
                   class="group relative flex flex-col rounded-2xl border border-border bg-surface/60 overflow-hidden cursor-pointer"
                   @click="activeTalkId = talk.id"

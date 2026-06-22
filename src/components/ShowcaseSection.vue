@@ -15,8 +15,41 @@
         </p>
       </div>
 
+      <!-- Loading Shimmer State -->
+      <div v-if="loading" class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="animate-pulse flex flex-col items-stretch rounded-3xl border border-border bg-surface/20 overflow-hidden"
+        >
+          <div class="relative aspect-[4/3] w-full bg-border/20 border-b border-border"></div>
+          <div class="flex flex-1 flex-col p-6 space-y-4">
+            <div class="h-3 w-1/4 bg-border/20 rounded"></div>
+            <div class="h-6 w-3/4 bg-border/20 rounded"></div>
+            <div class="h-4 w-5/6 bg-border/20 rounded"></div>
+            <div class="mt-6 flex items-center justify-between border-t border-border/40 pt-4">
+              <div class="flex gap-1.5">
+                <div class="h-4 w-12 bg-border/20 rounded-full"></div>
+                <div class="h-4 w-12 bg-border/20 rounded-full"></div>
+              </div>
+              <div class="h-4 w-8 bg-border/20 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+        Failed to load projects: {{ error }}
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="projects.length === 0" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+        No projects found. Check back later!
+      </div>
+
       <!-- Projects Grid -->
-      <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div v-else class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         <button
           v-for="project in projects"
           :key="project.name"
@@ -76,9 +109,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { projects } from '@/data/projects'
+import { useProjects } from '@/composables/firebase/useProjects'
 import type { Project } from '@/types'
 import ProjectDialog from './ProjectDialog.vue'
 
 const activeProject = ref<Project | null>(null)
+const { docs: projects, loading, error } = useProjects()
 </script>

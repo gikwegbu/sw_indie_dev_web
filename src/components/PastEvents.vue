@@ -1,75 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { usePastEvents } from '@/composables/firebase/usePastEvents'
 import type { PastEvent } from '@/types'
 import PastEventDialog from './PastEventDialog.vue'
 
-// Import asset images
-import eventBristolImg from '@/assets/past-event-bristol.png'
-import eventShowTellImg from '@/assets/past-event-show-tell.png'
 
-import portraitMarcus from '@/assets/member-marcus.jpg'
-import portraitPriya from '@/assets/member-priya.jpg'
-import portraitJonah from '@/assets/member-jonah.jpg'
-import portraitSofia from '@/assets/member-sofia.jpg'
 
-const pastEvents: PastEvent[] = [
-  {
-    id: '1',
-    title: 'SW-Indie Devs: Winter Showcase 2025',
-    date: '2025-11-14',
-    coverImage: eventBristolImg,
-    description: 'Our annual winter showcase in Bristol, featuring indie product presentations, pricing discussions, and community project launches.',
-    fullDescription: 'The Winter Showcase 2025 brought together developers from across the South West to demo their latest products. We hosted live show-and-tell sessions, ran interactive feedback workshops, and discussed app-store optimization and pricing tiers. Over 80 developers joined us at the engine loft for a night of coding inspiration.',
-    tags: ['Showcase', 'Bristol', 'Winter Meetup'],
-    galleryImages: [],
-    talks: [
-      {
-        id: '1-1',
-        speakerName: 'Marcus Vance',
-        speakerTitle: 'Creator of HabitBuilder & iOS Indie Developer',
-        speakerPortrait: portraitMarcus,
-        talkTitle: 'Bootstrapping a SwiftUI App to $5k MRR in 12 Months',
-        youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-      },
-      {
-        id: '1-2',
-        speakerName: 'Priya Sharma',
-        speakerTitle: 'Founder of CalmSpace & UX Designer',
-        speakerPortrait: portraitPriya,
-        talkTitle: 'Aesthetic-First App Design: Crafting Interfaces Users Love',
-        youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-      }
-    ]
-  },
-  {
-    id: '2',
-    title: 'Spring Talk: App Store Launch Strategies',
-    date: '2026-03-18',
-    coverImage: eventShowTellImg,
-    description: 'An evening of expert insights on optimization, handling reviews, pitching to editors, and scaling organically.',
-    fullDescription: 'In our Spring meetup, we focused on the critical phase of launching. We covered the ins and outs of preparing your metadata, running public beta programs, obtaining early review traction, and techniques for getting featured by Apple and Google. A highly practical session for anyone shipping this year.',
-    tags: ['Marketing', 'Launch', 'ASO'],
-    galleryImages: [],
-    talks: [
-      {
-        id: '2-1',
-        speakerName: 'Jonah Miller',
-        speakerTitle: 'Creator of Chronos Planner',
-        speakerPortrait: portraitJonah,
-        talkTitle: 'Surviving App Store Launch Week: What Actually Works',
-        youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-      },
-      {
-        id: '2-2',
-        speakerName: 'Sofia Chen',
-        speakerTitle: 'Founder of Vivid Editor',
-        speakerPortrait: portraitSofia,
-        talkTitle: 'Cross-Platform Shipping: Vue, Tauri, and Mobile Wrappers',
-        youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-      }
-    ]
-  }
-]
+const { docs: pastEvents, loading, error } = usePastEvents()
 
 const activeEvent = ref<PastEvent | null>(null)
 
@@ -101,8 +38,35 @@ function formatEventDate(dateString: string) {
         </h2>
       </div>
 
+      <!-- Loading Shimmer State -->
+      <div v-if="loading" class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="animate-pulse flex flex-col rounded-3xl border border-border bg-surface/20 overflow-hidden"
+        >
+          <div class="relative aspect-[4/3] w-full bg-border/20 border-b border-border/40"></div>
+          <div class="p-6 flex flex-col flex-grow space-y-4">
+            <div class="h-5 w-3/4 bg-border/20 rounded"></div>
+            <div class="h-3 w-1/4 bg-border/20 rounded"></div>
+            <div class="h-4 w-5/6 bg-border/20 rounded"></div>
+            <div class="h-4 w-12 bg-border/20 rounded mt-4"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+        Failed to load past events: {{ error }}
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="pastEvents.length === 0" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+        No past events found. Check back later!
+      </div>
+
       <!-- Past Events Grid -->
-      <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div v-else class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         <button
           v-for="event in pastEvents"
           :key="event.id"

@@ -1,37 +1,9 @@
 <script setup lang="ts">
 import { Calendar, MapPin } from 'lucide-vue-next'
-import type { UpcomingEvent } from '@/types'
+import { useUpcomingEvents } from '@/composables/firebase/useUpcomingEvents'
 
-// Local event cover images
-import eventBristolImg from '@/assets/event-bristol.png'
-import eventLondonImg from '@/assets/event-london.png'
 
-const events: UpcomingEvent[] = [
-  {
-    id: '1',
-    title: 'Bristol Indie Devs: Show & Tell + Social',
-    description: 'Join us at the Engine Shed for our monthly show & tell. Bring your latest app, side project, or design mockup to get feedback and meet fellow indie developers.',
-    date: '2026-07-09T18:30:00Z',
-    time: '6:30 PM BST',
-    location: 'Engine Shed, Station Approach, Bristol BS1 6QH',
-    locationUrl: 'https://maps.app.goo.gl/B9Zsh8xGphx11B8a8',
-    meetupUrl: 'https://www.meetup.com/sw-indie-devs/events/bristol-show-tell',
-    coverImage: eventBristolImg,
-    tags: ['Meetup', 'Show & Tell', 'Bristol']
-  },
-  {
-    id: '2',
-    title: 'London Indie Hackers & Builders Meetup',
-    description: 'A casual evening meetup in central London. Discuss monetization strategies, marketing tips, App Store optimization, and network with other bootstrapper developers.',
-    date: '2026-07-23T18:30:00Z',
-    time: '6:30 PM BST',
-    location: 'The Old Street Workspace, Old St, London EC1V 9BP',
-    locationUrl: 'https://maps.app.goo.gl/LondonOldStreetPlaceHolderUrl',
-    meetupUrl: 'https://www.meetup.com/sw-indie-devs/events/london-meetup',
-    coverImage: eventLondonImg,
-    tags: ['Networking', 'Marketing', 'London']
-  }
-]
+const { docs: events, loading, error } = useUpcomingEvents()
 
 function formatEventDate(dateString: string) {
   try {
@@ -63,8 +35,40 @@ function formatEventDate(dateString: string) {
       </p>
     </div>
 
+    <!-- Loading Shimmer State -->
+    <div v-if="loading" class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        v-for="i in 3"
+        :key="i"
+        class="animate-pulse flex flex-col rounded-3xl border border-border bg-surface/20 overflow-hidden"
+      >
+        <div class="relative aspect-[16/9] w-full bg-border/20"></div>
+        <div class="p-6 flex flex-col flex-grow space-y-4">
+          <div class="flex gap-2">
+            <div class="h-4 w-12 bg-border/20 rounded-full"></div>
+            <div class="h-4 w-12 bg-border/20 rounded-full"></div>
+          </div>
+          <div class="h-6 w-3/4 bg-border/20 rounded"></div>
+          <div class="h-4 w-1/2 bg-border/20 rounded"></div>
+          <div class="h-4 w-5/6 bg-border/20 rounded"></div>
+          <div class="h-4 w-2/3 bg-border/20 rounded"></div>
+          <div class="h-10 w-full bg-border/20 rounded-xl mt-auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+      Failed to load upcoming events: {{ error }}
+    </div>
+
+    <!-- Empty State -->
+    <div v-else-if="events.length === 0" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+      No upcoming events scheduled. Check back soon!
+    </div>
+
     <!-- Events Grid -->
-    <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="event in events"
         :key="event.id"

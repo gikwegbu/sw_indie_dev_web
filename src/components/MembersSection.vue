@@ -14,8 +14,40 @@
       </p>
     </div>
 
+    <!-- Loading Shimmer State -->
+    <div v-if="loading" class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        v-for="i in 3"
+        :key="i"
+        class="animate-pulse relative flex flex-col items-stretch rounded-3xl border border-border bg-surface/20 p-6"
+      >
+        <div class="absolute top-10 right-10 h-4 w-20 bg-border/20 rounded-full"></div>
+        <div class="relative aspect-square w-full bg-border/20 rounded-2xl border border-border"></div>
+        <div class="h-6 w-1/2 bg-border/20 rounded mt-5"></div>
+        <div class="h-4 w-1/3 bg-border/20 rounded mt-2"></div>
+        <div class="mt-6 flex items-center justify-between border-t border-border/40 pt-4">
+          <div class="flex items-center gap-3">
+            <div class="h-4 w-4 bg-border/20 rounded"></div>
+            <div class="h-4 w-4 bg-border/20 rounded"></div>
+            <div class="h-4 w-4 bg-border/20 rounded"></div>
+          </div>
+          <div class="h-4 w-12 bg-border/20 rounded"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+      Failed to load members: {{ error }}
+    </div>
+
+    <!-- Empty State -->
+    <div v-else-if="members.length === 0" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+      No members found. Check back later!
+    </div>
+
     <!-- Members Grid -->
-    <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       <button
         v-for="member in members"
         :key="member.name"
@@ -82,10 +114,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { members } from '@/data/members'
+import { useMembers } from '@/composables/firebase/useMembers'
 import type { Member } from '@/types'
 import { Linkedin, Twitter, Github, Globe } from 'lucide-vue-next'
 import MemberDialog from './MemberDialog.vue'
 
 const activeMember = ref<Member | null>(null)
+const { docs: members, loading, error } = useMembers()
 </script>

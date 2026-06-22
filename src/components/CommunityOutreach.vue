@@ -1,44 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useOutreach } from '@/composables/firebase/useOutreach'
 import type { OutreachActivity } from '@/types'
 import OutreachDialog from './OutreachDialog.vue'
 
-// Import cover images
-import outreachCleanupImg from '@/assets/outreach-cleanup.png'
-import outreachWorkshopImg from '@/assets/outreach-workshop.png'
-
-const activities: OutreachActivity[] = [
-  {
-    id: '1',
-    title: 'Bristol Parks Cleanup & Green Initiative',
-    summary: 'A community cleanup event organized by our developer circle in Bristol to help tidy up local green spaces and network offline.',
-    fullDescription: 'Our developers traded keyboard shortcuts for litter pickers to clean up Castle Park in Bristol. Over 25 members joined forces, collecting 18 bags of recycling and waste, helping to keep our local community clean and green. After the cleanup, we headed to a nearby pub to discuss app ideas and share developer war stories.',
-    date: '2026-05-10',
-    coverImage: outreachCleanupImg,
-    gallery: [
-      outreachCleanupImg,
-      'https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=800&auto=format&fit=crop&q=60',
-      'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=800&auto=format&fit=crop&q=60',
-      'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&auto=format&fit=crop&q=60'
-    ],
-    tags: ['Community', 'Outreach', 'Bristol']
-  },
-  {
-    id: '2',
-    title: 'Developer Accessibility Workshop',
-    summary: 'An interactive coding workshop dedicated to raising awareness for a11y, semantic HTML, screen readers, and WCAG rules.',
-    fullDescription: 'We hosted a full-day developer sensitisation and accessibility clinic in London. The session featured live screen-reader audits, keyboard-only navigation challenges, and reviews of ARIA practices. We audited 12 member projects, fixing keyboard navigation, color contrast issues, and screen-reader accessibility labels on the spot.',
-    date: '2026-04-12',
-    coverImage: outreachWorkshopImg,
-    gallery: [
-      outreachWorkshopImg,
-      'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=60',
-      'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=60',
-      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=60'
-    ],
-    tags: ['A11y', 'Workshop', 'Education']
-  }
-]
+const { docs: activities, loading, error } = useOutreach()
 
 const activeActivity = ref<OutreachActivity | null>(null)
 </script>
@@ -55,8 +21,38 @@ const activeActivity = ref<OutreachActivity | null>(null)
       </h2>
     </div>
 
+    <!-- Loading Shimmer State -->
+    <div v-if="loading" class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        v-for="i in 3"
+        :key="i"
+        class="animate-pulse flex flex-col rounded-3xl border border-border bg-surface/20 overflow-hidden"
+      >
+        <div class="relative aspect-[4/3] w-full bg-border/20 border-b border-border/40"></div>
+        <div class="p-6 flex flex-col flex-grow space-y-4">
+          <div class="flex gap-2">
+            <div class="h-4 w-12 bg-border/20 rounded-full"></div>
+            <div class="h-4 w-12 bg-border/20 rounded-full"></div>
+          </div>
+          <div class="h-5 w-3/4 bg-border/20 rounded"></div>
+          <div class="h-4 w-5/6 bg-border/20 rounded"></div>
+          <div class="h-4 w-12 bg-border/20 rounded mt-auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+      Failed to load outreach activities: {{ error }}
+    </div>
+
+    <!-- Empty State -->
+    <div v-else-if="activities.length === 0" class="mt-16 text-center text-sm text-muted-foreground/80 border border-border/50 rounded-2xl p-6 bg-surface/20">
+      No community outreach activities found. Check back later!
+    </div>
+
     <!-- Outreach Activities Grid -->
-    <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       <button
         v-for="activity in activities"
         :key="activity.id"
