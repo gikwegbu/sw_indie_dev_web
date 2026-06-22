@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Toaster } from 'vue-sonner'
+import { useRoute } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import HeroSection from '@/components/HeroSection.vue'
 import AboutSection from '@/components/AboutSection.vue'
@@ -14,6 +15,8 @@ import SiteFooter from '@/components/SiteFooter.vue'
 
 import SplashScreen from '@/components/SplashScreen.vue'
 import { splashDone, markSplashDone } from '@/composables/useSplash'
+
+const route = useRoute()
 
 const socials = {
   instagram: '#',
@@ -40,30 +43,36 @@ const socials = {
       }"
     />
 
-    <!-- Splash Screen -->
-    <SplashScreen v-if="!splashDone" @done="markSplashDone" />
+    <!-- Splash Screen (only shown on marketing paths) -->
+    <SplashScreen v-if="!splashDone && !route.path.startsWith('/xxy_admin')" @done="markSplashDone" />
 
     <!-- Main Content Transition -->
     <Transition name="fade-in">
-      <div v-if="splashDone" class="flex flex-col flex-grow">
-        <!-- Navigation Header -->
-        <NavBar />
+      <div v-if="splashDone || route.path.startsWith('/xxy_admin')" class="flex flex-col flex-grow">
+        <template v-if="!route.path.startsWith('/xxy_admin')">
+          <!-- Navigation Header -->
+          <NavBar />
 
-        <!-- Page Content (Sections in exact order) -->
-        <main class="flex-grow">
-          <HeroSection />
-          <AboutSection />
-          <PillarsSection />
-          <ShowcaseSection />
-          <MembersSection />
-          <UpcomingEvents />
-          <PastEvents />
-          <CommunityOutreach />
-          <JoinSection />
-        </main>
+          <!-- Page Content (Sections in exact order) -->
+          <main class="flex-grow">
+            <HeroSection />
+            <AboutSection />
+            <PillarsSection />
+            <ShowcaseSection />
+            <MembersSection />
+            <UpcomingEvents />
+            <PastEvents />
+            <CommunityOutreach />
+            <JoinSection />
+          </main>
 
-        <!-- Footer -->
-        <SiteFooter :socials="socials" />
+          <!-- Footer -->
+          <SiteFooter :socials="socials" />
+        </template>
+        <template v-else>
+          <!-- Router view for admin panel -->
+          <RouterView />
+        </template>
       </div>
     </Transition>
   </div>
