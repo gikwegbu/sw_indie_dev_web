@@ -112,3 +112,7 @@ The site will be available at:
 - **Featured Projects Star Toggles**:
   - Implemented interactive star icon buttons (`Star` / `StarOff`) inside the projects table on `AdminProjects.vue`, performing transactional updates to clear/reassign featured flags.
   - Redesigned `AdminFeatured.vue`'s preview card to mirror the public site's layout while rendering in the dashboard's light/dark palette, and added a button to clear the active featured project.
+- **Dynamic Theme Favicons**:
+  - Created a custom SVG favicon for the public website (`public/favicon.svg`) featuring a geometric compass arrow on a purple-to-blue gradient.
+  - Created a custom SVG favicon for the admin panel (`public/favicon-admin.svg`) with a lock/shield emblem overlaying a stone/purple gradient.
+  - Configured `AdminApp.vue` to dynamically swap the document link icon to the admin favicon on mount, and revert it to the standard favicon on unmount.
