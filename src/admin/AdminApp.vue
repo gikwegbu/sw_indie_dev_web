@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { signOut, onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from '@/firebase'
@@ -31,6 +31,20 @@ watch(() => route.query.error, (newVal) => {
     showErrorBanner.value = true
   }
 }, { immediate: true })
+
+onMounted(() => {
+  const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement
+  if (link) {
+    link.href = '/favicon-admin.svg'
+  }
+})
+
+onUnmounted(() => {
+  const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement
+  if (link) {
+    link.href = '/favicon.svg'
+  }
+})
 
 onAuthStateChanged(auth, (user) => {
   currentUser.value = user
